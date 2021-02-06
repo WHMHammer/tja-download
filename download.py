@@ -1,36 +1,45 @@
 from bs4 import BeautifulSoup
 from csv import reader
 from io import BytesIO
-from multiprocessing import Process
-from os import listdir, mkdir
-from pprint import pprint
-from requests import get
+from multiprocessing import Process, Queue
+from os import listdir, makedirs
+from re import compile
+from requests import get, post
 from time import sleep
 from zipfile import BadZipFile, ZipFile
 
-links_dir = "_links"
+links_dir = "links"
 downloads_dir = "downloads"
 sleep_time = 0.01
 
 
-def download_from_csv(path):
-    not_downloaded = []
-    with open(path) as f:
-        r = reader(f)
+def download_from_csv(csv_filename, q):
+    try:
+        makedirs(f"{downloads_dir}/{csv_filename[:-4]}/本家")
+    except FileExistsError:
+        pass
+    try:
+        makedirs(f"{downloads_dir}/{csv_filename[:-4]}/others")
+    except FileExistsError:
+        pass
+    with open(f"{links_dir}/{csv_filename}") as csv_f:
+        r = reader(csv_f)
         for filename, comment, url in r:
-            ext = filename[-4:]
-            if ext == ".zip":
-                if not download_zip(filename[:-4], comment, url):
-                    not_downloaded.append(url)
-            elif ext == ".rar":
-                if not download_rar(filename[:-4], comment, url):
-                    not_downloaded.append(url)
-            elif ext in (".mp3", ".ogg", ".tja"):
-                if not download_raw(filename, comment, url):
-                    not_downloaded.append(url)
+            print(filename)
+            if "本家" in comment:
+                target_dir = f"{downloads_dir}/{csv_filename[:-4]}/本家/"
             else:
-                not_downloaded.append(url)
-    pprint(not_downloaded)
+                target_dir = f"{downloads_dir}/{csv_filename[:-4]}/others/"
+            with open(target_dir+filename, "wb") as f:
+                link = get_download_link(url)
+                if link is None:
+                    q.put(url)
+                    continue
+                try:
+                    f.write(get(link).content)
+                finally:
+                    # removing this may cause your IP address to be banned
+                    sleep(sleep_time)
 
 
 def get_download_link(url):
@@ -48,7 +57,7 @@ def get_download_link(url):
         sleep(sleep_time)  # removing this may cause your IP address to be banned
     try:
         return BeautifulSoup(
-            post(href, data={"token": token}).text,
+            post(url, data={"token": token}).text,
             features="html.parser"
         ).find(
             "a",
@@ -60,41 +69,19 @@ def get_download_link(url):
         sleep(sleep_time)  # removing this may cause your IP address to be banned
 
 
-def download_zip(filename, comment, url):
-    link = get_download_link(url)
-    if link is None:
-        return False
-    try:
-        with ZipFile(BytesIO(get(link).content)) as z:
-            z.extractall(f"{downloads_dir}/{filename}")
-    finally:
-        sleep(sleep_time)  # removing this may cause your IP address to be banned
-    return True
-
-
-def download_rar(filename, comment, url):
-    return False
-
-
-def download_raw(filename, comment, url):
-    return False
-
-
 if __name__ == "__main__":
-    try:
-        mkdir(downloads_dir)
-    except FileExistsError:
-        pass
-    download_from_csv("_links/taikojiro2.83以前・太鼓さん小次郎・tjaplayer専用アップローダ.csv")
-    exit()
+    q = Queue()
     processes = []
     for filename in listdir(links_dir):
         if filename[-4:] == ".csv":
             process = Process(
                 target=download_from_csv,
-                args=(f"{links_dir}/{filename}",)
+                args=(filename, q)
             )
             process.start()
             processes.append(process)
     for process in processes:
         process.join()
+    print("Not downloaded:")
+    while not q.empty():
+        print(q.get())
