@@ -1,12 +1,10 @@
 from bs4 import BeautifulSoup
 from csv import reader
-from io import BytesIO
 from multiprocessing import Process, Queue
 from os import listdir, makedirs
 from re import compile
 from requests import get, post
 from time import sleep
-from zipfile import BadZipFile, ZipFile
 
 links_dir = "links"
 downloads_dir = "downloads"

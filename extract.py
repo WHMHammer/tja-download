@@ -1,5 +1,6 @@
 from multiprocessing import Process, Queue
 from os import listdir, makedirs
+from shutil import copyfile
 from zipfile import BadZipFile, ZipFile
 
 downloads_dir = "downloads"
@@ -21,8 +22,10 @@ def extract_all(dir_path, q):
             if not extract_rar(dir_path, filename):
                 q.put(f"{dir_path}/{filename}")
         elif ext in (".mp3", ".ogg", ".tja"):
-            if not copy_file(dir_path, filename):
-                q.put(f"{dir_path}/{filename}")
+            copyfile(
+                f"{downloads_dir}/{dir_path}/{filename}",
+                f"{extracted_dir}/{dir_path}/{filename}"
+            )
         else:
             q.put(f"{dir_path}/{filename}")
 
@@ -35,7 +38,7 @@ def extract_zip(dir_path, filename):
                     try:
                         name = raw_name.encode("cp437").decode("shiftjis")
                     except UnicodeError:
-                        return False
+                        name = raw_name
                     with open(f"{extracted_dir}/{dir_path}/{name}", "wb") as target_f:
                         target_f.write(z.read(raw_name))
         except BadZipFile:
@@ -44,10 +47,6 @@ def extract_zip(dir_path, filename):
 
 
 def extract_rar(dir_path, filename):
-    return False
-
-
-def copy_file(dir_path, filename):
     return False
 
 

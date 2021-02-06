@@ -4,7 +4,6 @@ from multiprocessing import Process
 from os import mkdir
 from requests import get
 from time import sleep
-from urllib.parse import urlsplit
 
 links_dir = "links"
 urls = (  # only ux.getuploader.com URLs are acceptable
@@ -29,7 +28,8 @@ def dump_links(url):
             features="html.parser"
         ).find("h1").contents[0].strip()
     except (TypeError, IndexError):
-        heading = urlsplit(url).path.strip("/")
+        print("The url you entered is not acceptable")
+        return
     finally:
         sleep(sleep_time)  # removing this may cause your IP address to be banned
     with open(f"{links_dir}/{heading}.csv", "w") as f:
