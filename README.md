@@ -3,7 +3,7 @@
 ![License: GPLv3](https://img.shields.io/badge/License-GPLv3-green.svg)
 ![python 3.5+](https://img.shields.io/badge/python-3.5+-blue)
 
-These scripts dump tja file download links, download the archives fromm the dumped links, and extract the zip files downloaded.
+These scripts dump tja file download links, download archives from the dumped links, and extract the zip files downloaded.
 
 ## TODO
 

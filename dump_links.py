@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
 from csv import writer
-from multiprocessing import Process
+from multiprocessing import Process, Queue
 from os import mkdir
 from requests import get
 from time import sleep
@@ -16,10 +16,10 @@ urls = (  # only ux.getuploader.com URLs are acceptable
     "https://ux.getuploader.com/koganei235/",
     "https://ux.getuploader.com/yokohama205/"
 )
-sleep_time = 0.01
+# sleep_time = 1  # adjust sleep time at your own risk
 
 
-def dump_links(url):
+def dump_links(url, q):
     page_no = 1
     has_fetched_all = False
     try:
@@ -31,7 +31,7 @@ def dump_links(url):
         print("The url you entered is not acceptable")
         return
     finally:
-        sleep(sleep_time)  # removing this may cause your IP address to be banned
+        sleep(sleep_time)
     with open(f"{links_dir}/{heading}.csv", "w") as f:
         w = writer(f)
         while not has_fetched_all:
@@ -54,12 +54,8 @@ def dump_links(url):
                     except KeyError:
                         pass
             except AttributeError:
-                print(
-                    "The owner of ux.getuploader.com has likely banned your IP address."
-                )
-                return
+                q.put(page_url)
             finally:
-                # removing this may cause your IP address to be banned
                 sleep(sleep_time)
             w.writerows(page_records)
             page_no += 1
@@ -70,13 +66,17 @@ if __name__ == "__main__":
         mkdir(links_dir)
     except FileExistsError:
         pass
+    q = Queue()
     processes = []
     for url in urls:
         process = Process(
             target=dump_links,
-            args=(url,)
+            args=(url, q)
         )
         process.start()
         processes.append(process)
     for process in processes:
         process.join()
+    print("Failed pages:")
+    while not q.empty():
+        print(q.get())

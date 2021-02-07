@@ -8,7 +8,7 @@ from time import sleep
 
 links_dir = "links"
 downloads_dir = "downloads"
-sleep_time = 0.01
+# sleep_time = 1  # adjust sleep time at your own risk
 
 
 def download_from_csv(csv_filename, q):
@@ -28,15 +28,14 @@ def download_from_csv(csv_filename, q):
                 target_dir = f"{downloads_dir}/{csv_filename[:-4]}/本家/"
             else:
                 target_dir = f"{downloads_dir}/{csv_filename[:-4]}/others/"
+            link = get_download_link(url)
+            if link is None:
+                q.put(url)
+                continue
             with open(target_dir+filename, "wb") as f:
-                link = get_download_link(url)
-                if link is None:
-                    q.put(url)
-                    continue
                 try:
                     f.write(get(link).content)
                 finally:
-                    # removing this may cause your IP address to be banned
                     sleep(sleep_time)
 
 
@@ -52,7 +51,7 @@ def get_download_link(url):
     except (KeyError, TypeError):
         return
     finally:
-        sleep(sleep_time)  # removing this may cause your IP address to be banned
+        sleep(sleep_time)
     try:
         return BeautifulSoup(
             post(url, data={"token": token}).text,
@@ -64,10 +63,12 @@ def get_download_link(url):
     except (KeyError, TypeError):
         return
     finally:
-        sleep(sleep_time)  # removing this may cause your IP address to be banned
+        sleep(sleep_time)
 
 
 if __name__ == "__main__":
+    print(get_download_link("https://ux.getuploader.com/e2351000/download/262"))
+    exit()
     q = Queue()
     processes = []
     for filename in listdir(links_dir):
