@@ -16,7 +16,7 @@ urls = (  # only ux.getuploader.com URLs are acceptable
     "https://ux.getuploader.com/koganei235/",
     "https://ux.getuploader.com/yokohama205/"
 )
-# sleep_time = 1  # adjust sleep time at your own risk
+sleep_time = 1  # adjust sleep time at your own risk
 
 
 def dump_links(url, q):
@@ -67,6 +67,7 @@ if __name__ == "__main__":
     except FileExistsError:
         pass
     q = Queue()
+    """
     processes = []
     for url in urls:
         process = Process(
@@ -77,6 +78,9 @@ if __name__ == "__main__":
         processes.append(process)
     for process in processes:
         process.join()
+    """
+    for url in urls:
+        dump_links(url, q)
     print("Failed pages:")
     while not q.empty():
         print(q.get())

@@ -8,7 +8,7 @@ from time import sleep
 
 links_dir = "links"
 downloads_dir = "downloads"
-# sleep_time = 1  # adjust sleep time at your own risk
+sleep_time = 1  # adjust sleep time at your own risk
 
 
 def download_from_csv(csv_filename, q):
@@ -67,8 +67,7 @@ def get_download_link(url):
 
 
 if __name__ == "__main__":
-    print(get_download_link("https://ux.getuploader.com/e2351000/download/262"))
-    exit()
+    """
     q = Queue()
     processes = []
     for filename in listdir(links_dir):
@@ -81,6 +80,10 @@ if __name__ == "__main__":
             processes.append(process)
     for process in processes:
         process.join()
+    """
+    for filename in listdir(links_dir):
+        if filename[-4:] == ".csv":
+            download_from_csv(filename, q)
     print("Not downloaded:")
     while not q.empty():
         print(q.get())
