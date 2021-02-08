@@ -78,6 +78,8 @@ def recode(s):
         except UnicodeEncodeError:
             continue
         for dest_codec in dest_codecs:
+            if src_codec == dest_codec:
+                continue
             try:
                 return encoded.decode(dest_codec)
             except UnicodeDecodeError:
