@@ -4,11 +4,9 @@ from multiprocessing import Process, Queue
 from os import listdir, makedirs
 from re import compile
 from requests import get, post
-from time import sleep
 
 links_dir = "links"
 downloads_dir = "downloads"
-sleep_time = 1  # adjust sleep time at your own risk
 
 
 def download_from_csv(csv_filename, q):
@@ -33,10 +31,7 @@ def download_from_csv(csv_filename, q):
                 q.put(url)
                 continue
             with open(target_dir+filename, "wb") as f:
-                try:
-                    f.write(get(link).content)
-                finally:
-                    sleep(sleep_time)
+                f.write(get(link).content)
 
 
 def get_download_link(url):
@@ -50,8 +45,6 @@ def get_download_link(url):
         )["value"]
     except (KeyError, TypeError):
         return
-    finally:
-        sleep(sleep_time)
     try:
         return BeautifulSoup(
             post(url, data={"token": token}).text,
@@ -62,13 +55,11 @@ def get_download_link(url):
         )["href"]
     except (KeyError, TypeError):
         return
-    finally:
-        sleep(sleep_time)
 
 
 if __name__ == "__main__":
-    """
     q = Queue()
+    """  The following part is commented out because it's so fast that the ux.getuploader.com will ban your IP address
     processes = []
     for filename in listdir(links_dir):
         if filename[-4:] == ".csv":

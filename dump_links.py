@@ -2,8 +2,8 @@ from bs4 import BeautifulSoup
 from csv import writer
 from multiprocessing import Process, Queue
 from os import mkdir
+from os.path import join
 from requests import get
-from time import sleep
 
 links_dir = "links"
 urls = (  # only ux.getuploader.com URLs are acceptable
@@ -16,7 +16,6 @@ urls = (  # only ux.getuploader.com URLs are acceptable
     "https://ux.getuploader.com/koganei235/",
     "https://ux.getuploader.com/yokohama205/"
 )
-sleep_time = 1  # adjust sleep time at your own risk
 
 
 def dump_links(url, q):
@@ -30,35 +29,31 @@ def dump_links(url, q):
     except (TypeError, IndexError):
         print("The url you entered is not acceptable")
         return
-    finally:
-        sleep(sleep_time)
-    with open(f"{links_dir}/{heading}.csv", "w") as f:
+    while not has_fetched_all:
+        has_fetched_all = True
+        page_url = f"{url}index/filename/asc/{page_no}"
+        page_records = []
+        print(page_url)
+        try:
+            for tr in BeautifulSoup(
+                get(page_url).text,
+                features="html.parser"
+            ).find("tbody").findAll("tr"):
+                has_fetched_all = False
+                comment = tr.findAll("td")[1].string
+                a = tr.find("a")
+                try:
+                    page_records.append(
+                        (a.string, comment, a["href"])
+                    )
+                except KeyError:
+                    pass
+        except AttributeError:
+            q.put(page_url)
+    with open(join(links_dir, heading+".csv"), "w") as f:
         w = writer(f)
-        while not has_fetched_all:
-            has_fetched_all = True
-            page_url = f"{url}index/filename/asc/{page_no}"
-            page_records = []
-            print(page_url)
-            try:
-                for tr in BeautifulSoup(
-                    get(page_url).text,
-                    features="html.parser"
-                ).find("tbody").findAll("tr"):
-                    has_fetched_all = False
-                    comment = tr.findAll("td")[1].string
-                    a = tr.find("a")
-                    try:
-                        page_records.append(
-                            (a.string, comment, a["href"])
-                        )
-                    except KeyError:
-                        pass
-            except AttributeError:
-                q.put(page_url)
-            finally:
-                sleep(sleep_time)
-            w.writerows(page_records)
-            page_no += 1
+        w.writerows(page_records)
+    page_no += 1
 
 
 if __name__ == "__main__":
@@ -67,7 +62,7 @@ if __name__ == "__main__":
     except FileExistsError:
         pass
     q = Queue()
-    """
+    """  The following part is commented out because it's so fast that the ux.getuploader.com will ban your IP address
     processes = []
     for url in urls:
         process = Process(
