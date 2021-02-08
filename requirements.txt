@@ -1,3 +1,4 @@
 wheel
 bs4
+rar
 requests

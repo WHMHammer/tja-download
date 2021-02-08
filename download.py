@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 from csv import reader
-from multiprocessing import Process, Queue
 from os import listdir, makedirs
+from queue import Queue
 from re import compile
 from requests import get, post
 
@@ -59,19 +59,6 @@ def get_download_link(url):
 
 if __name__ == "__main__":
     q = Queue()
-    """  The following part is commented out because it's so fast that the ux.getuploader.com will ban your IP address
-    processes = []
-    for filename in listdir(links_dir):
-        if filename[-4:] == ".csv":
-            process = Process(
-                target=download_from_csv,
-                args=(filename, q)
-            )
-            process.start()
-            processes.append(process)
-    for process in processes:
-        process.join()
-    """
     for filename in listdir(links_dir):
         if filename[-4:] == ".csv":
             download_from_csv(filename, q)

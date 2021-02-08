@@ -1,8 +1,8 @@
 from bs4 import BeautifulSoup
 from csv import writer
-from multiprocessing import Process, Queue
 from os import mkdir
 from os.path import join
+from queue import Queue
 from requests import get
 
 links_dir = "links"
@@ -29,10 +29,10 @@ def dump_links(url, q):
     except (TypeError, IndexError):
         print("The url you entered is not acceptable")
         return
+    records = []
     while not has_fetched_all:
         has_fetched_all = True
         page_url = f"{url}index/filename/asc/{page_no}"
-        page_records = []
         print(page_url)
         try:
             for tr in BeautifulSoup(
@@ -43,17 +43,17 @@ def dump_links(url, q):
                 comment = tr.findAll("td")[1].string
                 a = tr.find("a")
                 try:
-                    page_records.append(
+                    records.append(
                         (a.string, comment, a["href"])
                     )
                 except KeyError:
                     pass
         except AttributeError:
             q.put(page_url)
+        page_no += 1
     with open(join(links_dir, heading+".csv"), "w") as f:
         w = writer(f)
-        w.writerows(page_records)
-    page_no += 1
+        w.writerows(records)
 
 
 if __name__ == "__main__":
@@ -62,18 +62,6 @@ if __name__ == "__main__":
     except FileExistsError:
         pass
     q = Queue()
-    """  The following part is commented out because it's so fast that the ux.getuploader.com will ban your IP address
-    processes = []
-    for url in urls:
-        process = Process(
-            target=dump_links,
-            args=(url, q)
-        )
-        process.start()
-        processes.append(process)
-    for process in processes:
-        process.join()
-    """
     for url in urls:
         dump_links(url, q)
     print("Failed pages:")

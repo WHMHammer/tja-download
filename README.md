@@ -9,9 +9,11 @@ These scripts dump tja file download links, download archives from the dumped li
 
 - `rar` extraction.
 
-## Requirement
+## Requirements
 
-- Python 3.8+
+- Python 3.6+
+
+- (Optional) `unrar`, `unar`, or `bsdtar` in `PATH`
 
 ## Notice
 
