@@ -5,10 +5,6 @@
 
 These scripts dump tja file download links, download archives from the dumped links, and extract the zip files downloaded.
 
-## TODO
-
-- `rar` extraction.
-
 ## Requirements
 
 - Python 3.6+
@@ -83,3 +79,8 @@ python3 extract.py
 ```
 
 The extracted files will be stored in the `extracted` directory. `zip` files will be extracted, `mp3`, `ogg`, and `tja` files will be copied, and other files will be ignored. The files in the `zip` archives will be properly re-coded from `shiftjs` encoding. Files this script fail to extract or copy will be outputted at the end of execution.
+
+## Related projects
+
+- A browser-based Taiko no Tatsujin simulator - [taiko-web](https://github.com/bui/taiko-web)
+- My forked and simplified version of [taiko-web](https://github.com/bui/taiko-web) with docker support - [taiko-web-docker](https://github.com/WHMHammer/taiko-web-docker)
