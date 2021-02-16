@@ -78,7 +78,7 @@ The downloaded files will be stored in the `downloads` directory. Files are put 
 python3 extract.py
 ```
 
-The extracted files will be stored in the `extracted` directory. `zip` files will be extracted, `m4a`, `mp3`, `ogg`, and `tja` files will be copied, and other files will be ignored. The files in the `zip` archives will be properly re-coded from `shiftjs` encoding. Files this script fail to extract or copy will be outputted at the end of execution.
+The extracted files will be stored in the `extracted` directory. `zip` and `rar` files will be extracted, `m4a`, `mp3`, `ogg`, and `tja` files will be copied, and other files will be ignored. The filenames in the archives will be properly re-coded. Files this script fail to extract or copy will be outputted at the end of execution.
 
 ## Related projects
 
