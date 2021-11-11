@@ -14,7 +14,11 @@ urls = (  # only ux.getuploader.com URLs are acceptable
     "https://ux.getuploader.com/koganei231/",
     "https://ux.getuploader.com/koganei233/",
     "https://ux.getuploader.com/koganei235/",
-    "https://ux.getuploader.com/yokohama205/"
+    "https://ux.getuploader.com/yokohama205/",
+    "https://ux.getuploader.com/taikosinhonke/",
+    "https://ux.getuploader.com/taikosinhonke2/",
+    "https://ux.getuploader.com/taikosinhonke3/",
+    "https://ux.getuploader.com/taikosinhonkepac/"
 )
 
 

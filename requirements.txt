@@ -1,4 +1,3 @@
-wheel
 bs4
 rarfile
 requests
